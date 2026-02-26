@@ -239,7 +239,7 @@ namespace Player.Vm.Api.Features.Vms.Hubs
 
             var newVmId = await _activeVirtualMachineService.SetActiveVirtualMachineForUser(userId, Context.User.GetName(), vm, Context.ConnectionId, teamIds, Context.ConnectionAborted);
 
-            await Clients.Groups(groups).SendAsync(VmHubMethods.ActiveVirtualMachine, newVmId, userId, DateTimeOffset.UtcNow, teamIds);
+            await Clients.Groups(groups).SendAsync(VmHubMethods.ActiveVirtualMachine, newVmId, userId, DateTimeOffset.UtcNow, teamIds, viewIds);
 
             // Begin Handling of displaying current users connected to an individual VM
             var userNamesByGroup = await _activeVirtualMachineService.GetActiveVirtualMachineUsersByGroup(vmId, null, CancellationToken.None);
@@ -287,7 +287,7 @@ namespace Player.Vm.Api.Features.Vms.Hubs
                 }
 
                 var groups = GetGroups(activeVirtualMachine.TeamIds, viewIds, userId, activeVirtualMachine.VmId);
-                await Clients.Groups(groups).SendAsync(VmHubMethods.ActiveVirtualMachine, null, userId, null, teams.Select(x => x.Id));
+                await Clients.Groups(groups).SendAsync(VmHubMethods.ActiveVirtualMachine, null, userId, null, teams.Select(x => x.Id), viewIds);
 
                 // Begin Handling of displaying current users connected to an individual VM
                 var userNamesByGroup = await _activeVirtualMachineService.GetActiveVirtualMachineUsersByGroup(activeVirtualMachine.VmId, activeVirtualMachine, cancellationToken);
