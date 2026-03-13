@@ -6,12 +6,13 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Player.Vm.Api.Domain.Services;
 using Player.Vm.Api.Infrastructure.Options;
-using Shouldly;
-using Xunit;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 
 namespace Player.Vm.Api.Tests.Unit.Services;
 
-[Trait("Category", "Unit")]
+[Category("Unit")]
 public class ViewServiceTests
 {
     private readonly IMemoryCache _cache;
@@ -43,17 +44,17 @@ public class ViewServiceTests
         return new ViewService(_httpClientFactory, _cache, _clientOptions, _logger);
     }
 
-    [Fact]
-    public void Constructor_WithValidOptions_CreatesInstance()
+    [Test]
+    public async Task Constructor_WithValidOptions_CreatesInstance()
     {
         // Act
         var sut = CreateSut();
 
         // Assert
-        sut.ShouldNotBeNull();
+        await Assert.That(sut).IsNotNull();
     }
 
-    [Fact]
+    [Test]
     public async Task GetTeamsForView_WhenCached_ReturnsCachedResult()
     {
         // Arrange
@@ -69,12 +70,12 @@ public class ViewServiceTests
         var result = await sut.GetTeamsForView(viewId, CancellationToken.None);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Count.ShouldBe(2);
-        result.ShouldBe(teamIds);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Count).IsEqualTo(2);
+        await Assert.That(result).IsEqualTo(teamIds);
     }
 
-    [Fact]
+    [Test]
     public async Task GetViewIdForTeam_WhenTeamInfoCached_ReturnsViewId()
     {
         // Arrange
@@ -97,11 +98,11 @@ public class ViewServiceTests
         var result = await sut.GetViewIdForTeam(teamId, CancellationToken.None);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.ShouldBe(viewId);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result).IsEqualTo(viewId);
     }
 
-    [Fact]
+    [Test]
     public async Task GetViewIdsForTeams_WhenTeamsCached_ReturnsDistinctViewIds()
     {
         // Arrange
@@ -121,8 +122,8 @@ public class ViewServiceTests
         var result = await sut.GetViewIdsForTeams(new[] { teamId1, teamId2 }, CancellationToken.None);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Length.ShouldBe(1);
-        result[0].ShouldBe(viewId);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Length).IsEqualTo(1);
+        await Assert.That(result[0]).IsEqualTo(viewId);
     }
 }

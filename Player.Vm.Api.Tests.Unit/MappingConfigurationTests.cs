@@ -5,13 +5,12 @@ using AutoMapper;
 using Player.Vm.Api.Domain.Models;
 using Player.Vm.Api.Features.Vms;
 using Player.Vm.Api.Infrastructure.Options;
-using Shouldly;
-using Xunit;
+using TUnit.Core;
 using VmEntity = Player.Vm.Api.Domain.Models.Vm;
 
 namespace Player.Vm.Api.Tests.Unit;
 
-[Trait("Category", "Unit")]
+[Category("Unit")]
 public class MappingConfigurationTests
 {
     private static MapperConfiguration CreateConfiguration()
@@ -33,8 +32,8 @@ public class MappingConfigurationTests
         });
     }
 
-    [Fact]
-    public void CreateMapper_WithMappingProfile_ShouldSucceed()
+    [Test]
+    public async Task CreateMapper_WithMappingProfile_ShouldSucceed()
     {
         // Arrange
         var configuration = CreateConfiguration();
@@ -42,11 +41,11 @@ public class MappingConfigurationTests
         // Act - verify mapper can be created (weaker than AssertConfigurationIsValid
         // because the app has unmapped navigation properties populated elsewhere)
         var mapper = configuration.CreateMapper();
-        mapper.ShouldNotBeNull();
+        await Assert.That(mapper).IsNotNull();
     }
 
-    [Fact]
-    public void Map_VmEntityToVmDto_MapsAllProperties()
+    [Test]
+    public async Task Map_VmEntityToVmDto_MapsAllProperties()
     {
         // Arrange
         var mapper = CreateConfiguration().CreateMapper();
@@ -70,14 +69,14 @@ public class MappingConfigurationTests
         var result = mapper.Map<Features.Vms.Vm>(vmEntity);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe(vmId);
-        result.Name.ShouldBe("test-vm");
-        result.TeamIds.ShouldContain(teamId);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Id).IsEqualTo(vmId);
+        await Assert.That(result.Name).IsEqualTo("test-vm");
+        await Assert.That(result.TeamIds).Contains(teamId);
     }
 
-    [Fact]
-    public void Map_VmCreateFormToVmEntity_MapsAllProperties()
+    [Test]
+    public async Task Map_VmCreateFormToVmEntity_MapsAllProperties()
     {
         // Arrange
         var mapper = CreateConfiguration().CreateMapper();
@@ -95,15 +94,15 @@ public class MappingConfigurationTests
         var result = mapper.Map<VmEntity>(form);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe(vmId);
-        result.Name.ShouldBe("new-vm");
-        result.VmTeams.Count.ShouldBe(1);
-        result.VmTeams.First().TeamId.ShouldBe(teamId);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Id).IsEqualTo(vmId);
+        await Assert.That(result.Name).IsEqualTo("new-vm");
+        await Assert.That(result.VmTeams.Count).IsEqualTo(1);
+        await Assert.That(result.VmTeams.First().TeamId).IsEqualTo(teamId);
     }
 
-    [Fact]
-    public void Map_VmMapEntityToVmMapDto_MapsAllProperties()
+    [Test]
+    public async Task Map_VmMapEntityToVmMapDto_MapsAllProperties()
     {
         // Arrange
         var mapper = CreateConfiguration().CreateMapper();
@@ -127,9 +126,9 @@ public class MappingConfigurationTests
         var result = mapper.Map<Features.Vms.VmMap>(vmMapEntity);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe(mapId);
-        result.ViewId.ShouldBe(viewId);
-        result.Name.ShouldBe("test-map");
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Id).IsEqualTo(mapId);
+        await Assert.That(result.ViewId).IsEqualTo(viewId);
+        await Assert.That(result.Name).IsEqualTo("test-map");
     }
 }

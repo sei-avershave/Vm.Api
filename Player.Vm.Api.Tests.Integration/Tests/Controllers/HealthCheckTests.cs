@@ -3,38 +3,35 @@
 
 using System.Net;
 using Player.Vm.Api.Tests.Integration.Fixtures;
-using Shouldly;
-using Xunit;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 
 namespace Player.Vm.Api.Tests.Integration.Tests.Controllers;
 
-[Trait("Category", "Integration")]
-public class HealthCheckTests : IClassFixture<VmTestContext>
+[Category("Integration")]
+[ClassDataSource<VmTestContext>(Shared = SharedType.PerTestSession)]
+public class HealthCheckTests(VmTestContext factory)
 {
-    private readonly HttpClient _client;
+    private readonly HttpClient _client = factory.CreateClient();
 
-    public HealthCheckTests(VmTestContext factory)
-    {
-        _client = factory.CreateClient();
-    }
-
-    [Fact]
+    [Test]
     public async Task GetLiveliness_WhenHealthy_ReturnsOk()
     {
         // Act
         var response = await _client.GetAsync("/api/health/live");
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
     }
 
-    [Fact]
+    [Test]
     public async Task GetReadiness_WhenHealthy_ReturnsOk()
     {
         // Act
         var response = await _client.GetAsync("/api/health/ready");
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
     }
 }

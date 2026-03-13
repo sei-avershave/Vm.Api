@@ -13,15 +13,16 @@ using Player.Vm.Api.Features.Vms;
 using Player.Vm.Api.Infrastructure.Authorization;
 using Player.Vm.Api.Infrastructure.Exceptions;
 using Player.Vm.Api.Tests.Shared.Fixtures;
-using Shouldly;
 using VmEntity = Player.Vm.Api.Domain.Models.Vm;
 using System.Security.Claims;
 using System.Security.Principal;
-using Xunit;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 
 namespace Player.Vm.Api.Tests.Unit.Services;
 
-[Trait("Category", "Unit")]
+[Category("Unit")]
 public class VmServiceTests
 {
     private readonly IFixture _fixture;
@@ -53,7 +54,7 @@ public class VmServiceTests
         return new VmService(context, _fakePlayerService, _user, _fakeMapper);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAllAsync_WhenUserHasViewPermission_ReturnsAllVms()
     {
         // Arrange
@@ -85,11 +86,11 @@ public class VmServiceTests
         var result = await sut.GetAllAsync(CancellationToken.None);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Length.ShouldBe(3);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Length).IsEqualTo(3);
     }
 
-    [Fact]
+    [Test]
     public async Task GetAllAsync_WhenUserLacksPermission_ThrowsForbidden()
     {
         // Arrange
@@ -103,11 +104,11 @@ public class VmServiceTests
             .Returns(false);
 
         // Act & Assert
-        await Should.ThrowAsync<ForbiddenException>(
-            () => sut.GetAllAsync(CancellationToken.None));
+        await Assert.That(async () => await sut.GetAllAsync(CancellationToken.None))
+            .ThrowsExactly<ForbiddenException>();
     }
 
-    [Fact]
+    [Test]
     public async Task CreateAsync_WhenFormIsValid_ReturnsCreatedVm()
     {
         // Arrange
@@ -140,11 +141,11 @@ public class VmServiceTests
         var result = await sut.CreateAsync(form, CancellationToken.None);
 
         // Assert
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe(vmId);
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result.Id).IsEqualTo(vmId);
     }
 
-    [Fact]
+    [Test]
     public async Task DeleteAsync_WhenUserLacksPermission_ThrowsForbidden()
     {
         // Arrange
@@ -166,11 +167,11 @@ public class VmServiceTests
         var sut = CreateSut(context);
 
         // Act & Assert
-        await Should.ThrowAsync<ForbiddenException>(
-            () => sut.DeleteAsync(vmId, CancellationToken.None));
+        await Assert.That(async () => await sut.DeleteAsync(vmId, CancellationToken.None))
+            .ThrowsExactly<ForbiddenException>();
     }
 
-    [Fact]
+    [Test]
     public async Task DeleteAsync_WhenVmNotFound_ThrowsEntityNotFound()
     {
         // Arrange
@@ -180,7 +181,7 @@ public class VmServiceTests
         var sut = CreateSut(context);
 
         // Act & Assert
-        await Should.ThrowAsync<EntityNotFoundException<Features.Vms.Vm>>(
-            () => sut.DeleteAsync(vmId, CancellationToken.None));
+        await Assert.That(async () => await sut.DeleteAsync(vmId, CancellationToken.None))
+            .ThrowsExactly<EntityNotFoundException<Features.Vms.Vm>>();
     }
 }

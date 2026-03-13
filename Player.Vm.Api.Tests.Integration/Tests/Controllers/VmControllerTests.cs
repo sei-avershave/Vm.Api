@@ -11,17 +11,19 @@ using Player.Vm.Api.Data;
 using Player.Vm.Api.Domain.Models;
 using Player.Vm.Api.Features.Vms;
 using Player.Vm.Api.Tests.Integration.Fixtures;
-using Shouldly;
-using Xunit;
+using TUnit.Core;
+using TUnit.Assertions;
+using TUnit.Assertions.Extensions;
 using VmEntity = Player.Vm.Api.Domain.Models.Vm;
 
 namespace Player.Vm.Api.Tests.Integration.Tests.Controllers;
 
-[Trait("Category", "Integration")]
-public class VmControllerTests : IClassFixture<VmTestContext>
+[Category("Integration")]
+[ClassDataSource<VmTestContext>(Shared = SharedType.PerTestSession)]
+public class VmControllerTests(VmTestContext factory)
 {
-    private readonly HttpClient _client;
-    private readonly VmTestContext _factory;
+    private readonly HttpClient _client = factory.CreateClient();
+    private readonly VmTestContext _factory = factory;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -29,26 +31,20 @@ public class VmControllerTests : IClassFixture<VmTestContext>
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public VmControllerTests(VmTestContext factory)
-    {
-        _factory = factory;
-        _client = factory.CreateClient();
-    }
-
-    [Fact]
+    [Test]
     public async Task GetAll_WhenNoVmsExist_ReturnsOkAndEmptyList()
     {
         // Act
         var response = await _client.GetAsync("/api/vms");
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
         var vms = JsonSerializer.Deserialize<Features.Vms.Vm[]>(content, JsonOptions);
-        vms.ShouldNotBeNull();
+        await Assert.That(vms).IsNotNull();
     }
 
-    [Fact]
+    [Test]
     public async Task CreateVm_WhenFormIsValid_ReturnsCreated()
     {
         // Arrange
@@ -80,13 +76,13 @@ public class VmControllerTests : IClassFixture<VmTestContext>
         var response = await _client.PostAsync("/api/vms", form.ToJsonBody());
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Created);
 
         var content = await response.Content.ReadAsStringAsync();
         var createdVm = JsonSerializer.Deserialize<Features.Vms.Vm>(content, JsonOptions);
-        createdVm.ShouldNotBeNull();
-        createdVm.Id.ShouldBe(vmId);
-        createdVm.Name.ShouldBe("integration-test-vm");
+        await Assert.That(createdVm).IsNotNull();
+        await Assert.That(createdVm!.Id).IsEqualTo(vmId);
+        await Assert.That(createdVm.Name).IsEqualTo("integration-test-vm");
 
         // Verify in database
         using var verifyScope = _factory.Services.CreateScope();
@@ -95,12 +91,12 @@ public class VmControllerTests : IClassFixture<VmTestContext>
             .Include(v => v.VmTeams)
             .FirstOrDefaultAsync(v => v.Id == vmId);
 
-        dbVm.ShouldNotBeNull();
-        dbVm.Name.ShouldBe("integration-test-vm");
-        dbVm.VmTeams.ShouldContain(vt => vt.TeamId == teamId);
+        await Assert.That(dbVm).IsNotNull();
+        await Assert.That(dbVm!.Name).IsEqualTo("integration-test-vm");
+        await Assert.That(dbVm.VmTeams.Any(vt => vt.TeamId == teamId)).IsTrue();
     }
 
-    [Fact]
+    [Test]
     public async Task GetVm_WhenVmExists_ReturnsOk()
     {
         // Arrange - create a VM first
@@ -129,16 +125,16 @@ public class VmControllerTests : IClassFixture<VmTestContext>
         var response = await _client.GetAsync($"/api/vms/{vmId}");
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 
         var content = await response.Content.ReadAsStringAsync();
         var result = JsonSerializer.Deserialize<Features.Vms.Vm>(content, JsonOptions);
-        result.ShouldNotBeNull();
-        result.Id.ShouldBe(vmId);
-        result.Name.ShouldBe("get-test-vm");
+        await Assert.That(result).IsNotNull();
+        await Assert.That(result!.Id).IsEqualTo(vmId);
+        await Assert.That(result.Name).IsEqualTo("get-test-vm");
     }
 
-    [Fact]
+    [Test]
     public async Task DeleteVm_WhenVmExists_ReturnsNoContent()
     {
         // Arrange - create a VM first
@@ -167,16 +163,16 @@ public class VmControllerTests : IClassFixture<VmTestContext>
         var response = await _client.DeleteAsync($"/api/vms/{vmId}");
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.NoContent);
 
         // Verify deletion in database
         using var verifyScope = _factory.Services.CreateScope();
         var verifyContext = verifyScope.ServiceProvider.GetRequiredService<VmContext>();
         var deletedVm = await verifyContext.Vms.FindAsync(vmId);
-        deletedVm.ShouldBeNull();
+        await Assert.That(deletedVm).IsNull();
     }
 
-    [Fact]
+    [Test]
     public async Task GetTeamVms_WhenTeamHasVms_ReturnsOk()
     {
         // Arrange
@@ -205,6 +201,6 @@ public class VmControllerTests : IClassFixture<VmTestContext>
         var response = await _client.GetAsync($"/api/teams/{teamId}/vms");
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
     }
 }

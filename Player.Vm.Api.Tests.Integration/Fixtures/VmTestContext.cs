@@ -16,7 +16,8 @@ using Player.Vm.Api.Domain.Services;
 using Player.Vm.Api.Domain.Vsphere.Services;
 using Player.Vm.Api.Infrastructure.Authorization;
 using Testcontainers.PostgreSql;
-using Xunit;
+using TUnit.Core;
+using TUnit.Core.Interfaces;
 
 namespace Player.Vm.Api.Tests.Integration.Fixtures;
 
@@ -24,7 +25,7 @@ namespace Player.Vm.Api.Tests.Integration.Fixtures;
 /// WebApplicationFactory for Player VM API integration tests.
 /// Uses Testcontainers PostgreSQL and handles both VmContext and VmLoggingContext.
 /// </summary>
-public class VmTestContext : WebApplicationFactory<Program>, IAsyncLifetime
+public class VmTestContext : WebApplicationFactory<Program>, IAsyncInitializer, IAsyncDisposable
 {
     private PostgreSqlContainer? _container;
 
@@ -160,7 +161,7 @@ public class VmTestContext : WebApplicationFactory<Program>, IAsyncLifetime
         await loggingContext.Database.EnsureCreatedAsync();
     }
 
-    public new async Task DisposeAsync()
+    public new async ValueTask DisposeAsync()
     {
         if (_container is not null)
             await _container.DisposeAsync();
