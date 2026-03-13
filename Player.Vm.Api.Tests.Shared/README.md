@@ -75,3 +75,5 @@ fixture.Customize<VmEntity>(c => c
     .With(x => x.PowerState, () => PowerState.On)
     .With(x => x.Type, () => VmType.Vsphere));
 ```
+
+This customization is used across both unit and integration tests to generate test data with AutoFixture.

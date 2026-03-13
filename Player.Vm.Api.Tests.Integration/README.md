@@ -82,12 +82,12 @@ public class VmTestContext : WebApplicationFactory<Program>, IAsyncLifetime
 ### Controller Testing
 
 ```csharp
-public class VmControllerTests : IClassFixture<VmTestContext>
+public class VmControllerTests(VmTestContext factory)
 {
-    private readonly HttpClient _client;
-    private readonly VmTestContext _factory;
+    private readonly HttpClient _client = factory.CreateClient();
+    private readonly VmTestContext _factory = factory;
 
-    [Fact]
+    [Test]
     public async Task CreateVm_ReturnsCreated_WithValidForm()
     {
         // Arrange
@@ -102,11 +102,11 @@ public class VmControllerTests : IClassFixture<VmTestContext>
         var response = await _client.PostAsync("/api/vms", form.ToJsonBody());
 
         // Assert
-        response.StatusCode.ShouldBe(HttpStatusCode.Created);
+        await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.Created);
 
         var createdVm = JsonSerializer.Deserialize<Vm>(
             await response.Content.ReadAsStringAsync(), JsonOptions);
-        createdVm.ShouldNotBeNull();
+        await Assert.That(createdVm).IsNotNull();
 
         // Verify in database
         using var scope = _factory.Services.CreateScope();
@@ -114,7 +114,7 @@ public class VmControllerTests : IClassFixture<VmTestContext>
         var dbVm = await context.Vms
             .Include(v => v.VmTeams)
             .FirstOrDefaultAsync(v => v.Id == form.Id);
-        dbVm.ShouldNotBeNull();
+        await Assert.That(dbVm).IsNotNull();
     }
 }
 ```
@@ -122,7 +122,7 @@ public class VmControllerTests : IClassFixture<VmTestContext>
 ### Database Verification
 
 ```csharp
-[Fact]
+[Test]
 public async Task GetVm_ReturnsOk_WhenVmExists()
 {
     // Arrange - seed database
@@ -145,14 +145,13 @@ public async Task GetVm_ReturnsOk_WhenVmExists()
     var response = await _client.GetAsync($"/api/vms/{vmId}");
 
     // Assert
-    response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    await Assert.That(response.StatusCode).IsEqualTo(HttpStatusCode.OK);
 }
 ```
 
 ## Dependencies
 
-- **xUnit** - Test framework
-- **Shouldly** - Fluent assertions
+- **TUnit 1.19.22** - Test framework
 - **FakeItEasy** - Mocking framework for external services
 - **Microsoft.AspNetCore.Mvc.Testing** - WebApplicationFactory for in-process testing
 - **Testcontainers.PostgreSql** - Docker container for real PostgreSQL database
@@ -187,25 +186,19 @@ dotnet test --collect:"XPlat Code Coverage"
 
 ## Test Structure
 
-### IClassFixture Pattern
+### ClassDataSource Pattern
 
 ```csharp
-public class VmControllerTests : IClassFixture<VmTestContext>
+public class VmControllerTests(VmTestContext factory)
 {
-    private readonly VmTestContext _factory;
-    private readonly HttpClient _client;
-
-    public VmControllerTests(VmTestContext factory)
-    {
-        _factory = factory;
-        _client = factory.CreateClient();
-    }
+    private readonly VmTestContext _factory = factory;
+    private readonly HttpClient _client = factory.CreateClient();
 }
 ```
 
-xUnit creates one VmTestContext instance per test class, shared across all test methods.
+TUnit creates one VmTestContext instance per test session (using `[ClassDataSource<VmTestContext>(Shared = SharedType.PerTestSession)]`), shared across all test methods.
 
-### IAsyncLifetime
+### IAsyncInitializer and IAsyncDisposable
 
 ```csharp
 public async Task InitializeAsync()

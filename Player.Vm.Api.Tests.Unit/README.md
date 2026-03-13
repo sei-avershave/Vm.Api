@@ -44,7 +44,7 @@ private static MapperConfiguration CreateConfiguration()
 ### Service Testing with TestDbContextFactory
 
 ```csharp
-[Fact]
+[Test]
 public async Task GetAllAsync_WithViewPermission_ReturnsAllVms()
 {
     // Arrange
@@ -62,14 +62,14 @@ public async Task GetAllAsync_WithViewPermission_ReturnsAllVms()
     var result = await sut.GetAllAsync(CancellationToken.None);
 
     // Assert
-    result.Length.ShouldBe(3);
+    await Assert.That(result.Length).IsEqualTo(3);
 }
 ```
 
 ### Permission Testing
 
 ```csharp
-[Fact]
+[Test]
 public async Task DeleteAsync_WithoutPermission_ThrowsForbidden()
 {
     // Arrange
@@ -84,15 +84,14 @@ public async Task DeleteAsync_WithoutPermission_ThrowsForbidden()
     var sut = CreateSut(context);
 
     // Act & Assert
-    await Should.ThrowAsync<ForbiddenException>(
-        () => sut.DeleteAsync(vmEntity.Id, CancellationToken.None));
+    await Assert.That(() => sut.DeleteAsync(vmEntity.Id, CancellationToken.None))
+        .ThrowsException<ForbiddenException>();
 }
 ```
 
 ## Dependencies
 
-- **xUnit** - Test framework
-- **Shouldly** - Fluent assertions
+- **TUnit 1.19.22** - Test framework
 - **FakeItEasy** - Mocking framework
 - **AutoFixture** - Test data generation
 - **AutoFixture.AutoFakeItEasy** - Automatic fake generation
@@ -124,7 +123,7 @@ dotnet test --collect:"XPlat Code Coverage"
 All tests follow the AAA pattern:
 
 ```csharp
-[Fact]
+[Test]
 public async Task Method_Condition_ExpectedBehavior()
 {
     // Arrange - set up test data, mocks, and system under test
@@ -135,8 +134,8 @@ public async Task Method_Condition_ExpectedBehavior()
     var result = await sut.GetAsync(vmId, CancellationToken.None);
 
     // Assert - verify the outcome
-    result.ShouldNotBeNull();
-    result.Id.ShouldBe(vmId);
+    await Assert.That(result).IsNotNull();
+    await Assert.That(result.Id).IsEqualTo(vmId);
 }
 ```
 
