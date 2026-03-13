@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Player.Vm.Api.Tests.Integration.Tests.Controllers;
 
+[Trait("Category", "Integration")]
 public class HealthCheckTests : IClassFixture<VmTestContext>
 {
     private readonly HttpClient _client;
@@ -18,7 +19,7 @@ public class HealthCheckTests : IClassFixture<VmTestContext>
     }
 
     [Fact]
-    public async Task GetLiveliness_ReturnsSuccessStatusCode()
+    public async Task GetLiveliness_WhenHealthy_ReturnsOk()
     {
         // Act
         var response = await _client.GetAsync("/api/health/live");
@@ -28,7 +29,7 @@ public class HealthCheckTests : IClassFixture<VmTestContext>
     }
 
     [Fact]
-    public async Task GetReadiness_ReturnsSuccessStatusCode()
+    public async Task GetReadiness_WhenHealthy_ReturnsOk()
     {
         // Act
         var response = await _client.GetAsync("/api/health/ready");

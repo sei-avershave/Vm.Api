@@ -11,6 +11,7 @@ using Xunit;
 
 namespace Player.Vm.Api.Tests.Unit.Services;
 
+[Trait("Category", "Unit")]
 public class ViewServiceTests
 {
     private readonly IMemoryCache _cache;
@@ -53,7 +54,7 @@ public class ViewServiceTests
     }
 
     [Fact]
-    public async Task GetTeamsForView_CachesResult_ReturnsCachedOnSecondCall()
+    public async Task GetTeamsForView_WhenCached_ReturnsCachedResult()
     {
         // Arrange
         var viewId = Guid.NewGuid();
@@ -74,7 +75,7 @@ public class ViewServiceTests
     }
 
     [Fact]
-    public async Task GetViewIdForTeam_WithCachedTeamInfo_ReturnsViewId()
+    public async Task GetViewIdForTeam_WhenTeamInfoCached_ReturnsViewId()
     {
         // Arrange
         var teamId = Guid.NewGuid();
@@ -101,7 +102,7 @@ public class ViewServiceTests
     }
 
     [Fact]
-    public async Task GetViewIdsForTeams_WithCachedTeams_ReturnsDistinctViewIds()
+    public async Task GetViewIdsForTeams_WhenTeamsCached_ReturnsDistinctViewIds()
     {
         // Arrange
         var viewId = Guid.NewGuid();

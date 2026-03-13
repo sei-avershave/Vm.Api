@@ -11,6 +11,7 @@ using VmEntity = Player.Vm.Api.Domain.Models.Vm;
 
 namespace Player.Vm.Api.Tests.Unit;
 
+[Trait("Category", "Unit")]
 public class MappingConfigurationTests
 {
     private static MapperConfiguration CreateConfiguration()
@@ -33,7 +34,7 @@ public class MappingConfigurationTests
     }
 
     [Fact]
-    public void MappingProfile_ShouldHaveValidConfiguration()
+    public void CreateMapper_WithMappingProfile_ShouldSucceed()
     {
         // Arrange
         var configuration = CreateConfiguration();
@@ -45,7 +46,7 @@ public class MappingConfigurationTests
     }
 
     [Fact]
-    public void Map_VmEntity_To_VmDto_ShouldMapProperties()
+    public void Map_VmEntityToVmDto_MapsAllProperties()
     {
         // Arrange
         var mapper = CreateConfiguration().CreateMapper();
@@ -76,7 +77,7 @@ public class MappingConfigurationTests
     }
 
     [Fact]
-    public void Map_VmCreateForm_To_VmEntity_ShouldMapProperties()
+    public void Map_VmCreateFormToVmEntity_MapsAllProperties()
     {
         // Arrange
         var mapper = CreateConfiguration().CreateMapper();
@@ -102,7 +103,7 @@ public class MappingConfigurationTests
     }
 
     [Fact]
-    public void Map_VmMapEntity_To_VmMapDto_ShouldMapProperties()
+    public void Map_VmMapEntityToVmMapDto_MapsAllProperties()
     {
         // Arrange
         var mapper = CreateConfiguration().CreateMapper();

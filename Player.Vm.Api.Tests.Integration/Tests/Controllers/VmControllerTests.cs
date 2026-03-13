@@ -17,6 +17,7 @@ using VmEntity = Player.Vm.Api.Domain.Models.Vm;
 
 namespace Player.Vm.Api.Tests.Integration.Tests.Controllers;
 
+[Trait("Category", "Integration")]
 public class VmControllerTests : IClassFixture<VmTestContext>
 {
     private readonly HttpClient _client;
@@ -35,7 +36,7 @@ public class VmControllerTests : IClassFixture<VmTestContext>
     }
 
     [Fact]
-    public async Task GetAll_ReturnsOkAndEmptyList_WhenNoVmsExist()
+    public async Task GetAll_WhenNoVmsExist_ReturnsOkAndEmptyList()
     {
         // Act
         var response = await _client.GetAsync("/api/vms");
@@ -48,7 +49,7 @@ public class VmControllerTests : IClassFixture<VmTestContext>
     }
 
     [Fact]
-    public async Task CreateVm_ReturnsCreated_WithValidForm()
+    public async Task CreateVm_WhenFormIsValid_ReturnsCreated()
     {
         // Arrange
         var teamId = Guid.NewGuid();
@@ -100,7 +101,7 @@ public class VmControllerTests : IClassFixture<VmTestContext>
     }
 
     [Fact]
-    public async Task GetVm_ReturnsOk_WhenVmExists()
+    public async Task GetVm_WhenVmExists_ReturnsOk()
     {
         // Arrange - create a VM first
         var teamId = Guid.NewGuid();
@@ -138,7 +139,7 @@ public class VmControllerTests : IClassFixture<VmTestContext>
     }
 
     [Fact]
-    public async Task DeleteVm_ReturnsNoContent_WhenVmExists()
+    public async Task DeleteVm_WhenVmExists_ReturnsNoContent()
     {
         // Arrange - create a VM first
         var teamId = Guid.NewGuid();
@@ -176,7 +177,7 @@ public class VmControllerTests : IClassFixture<VmTestContext>
     }
 
     [Fact]
-    public async Task GetTeamVms_ReturnsOk_WhenTeamHasVms()
+    public async Task GetTeamVms_WhenTeamHasVms_ReturnsOk()
     {
         // Arrange
         var teamId = Guid.NewGuid();

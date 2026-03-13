@@ -21,6 +21,7 @@ using Xunit;
 
 namespace Player.Vm.Api.Tests.Unit.Services;
 
+[Trait("Category", "Unit")]
 public class VmServiceTests
 {
     private readonly IFixture _fixture;
@@ -53,7 +54,7 @@ public class VmServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_WithViewPermission_ReturnsAllVms()
+    public async Task GetAllAsync_WhenUserHasViewPermission_ReturnsAllVms()
     {
         // Arrange
         using var context = TestDbContextFactory.Create<VmContext>();
@@ -89,7 +90,7 @@ public class VmServiceTests
     }
 
     [Fact]
-    public async Task GetAllAsync_WithoutPermission_ThrowsForbidden()
+    public async Task GetAllAsync_WhenUserLacksPermission_ThrowsForbidden()
     {
         // Arrange
         using var context = TestDbContextFactory.Create<VmContext>();
@@ -107,7 +108,7 @@ public class VmServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_WithValidForm_ReturnsCreatedVm()
+    public async Task CreateAsync_WhenFormIsValid_ReturnsCreatedVm()
     {
         // Arrange
         using var context = TestDbContextFactory.Create<VmContext>();
@@ -144,7 +145,7 @@ public class VmServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_WithoutPermission_ThrowsForbidden()
+    public async Task DeleteAsync_WhenUserLacksPermission_ThrowsForbidden()
     {
         // Arrange
         using var context = TestDbContextFactory.Create<VmContext>();
@@ -170,7 +171,7 @@ public class VmServiceTests
     }
 
     [Fact]
-    public async Task DeleteAsync_VmNotFound_ThrowsEntityNotFound()
+    public async Task DeleteAsync_WhenVmNotFound_ThrowsEntityNotFound()
     {
         // Arrange
         using var context = TestDbContextFactory.Create<VmContext>();
