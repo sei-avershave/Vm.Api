@@ -6,3 +6,6 @@ player_vm.db
 .vs/
 appsettings.Development.json
 .vscode/
+
+# Claude Code artifacts
+.claude/
