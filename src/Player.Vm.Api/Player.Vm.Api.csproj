@@ -6,6 +6,10 @@
     <UserSecretsId>cmu-sei-crucible-vm-api</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <InternalsVisibleTo Include="Player.Vm.Api.Tests.Unit" />
+    <InternalsVisibleTo Include="Player.Vm.Api.Tests.Integration" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1"/> <!-- DO NOT UPDATE. Version 15+ requires a license. Plan to migrate to something else. -->
     <PackageReference Include="Player.Api.Client" Version="3.4.3"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
